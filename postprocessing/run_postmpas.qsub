@@ -1,0 +1,33 @@
+#!/bin/bash
+#PBS -l select=1:ncpus=24:mem=120gb:nodetype=haswell_reg
+#PBS -P ERTH0904
+#PBS -q smp
+#PBS -l walltime=48:00:00
+#PBS -m abe
+#PBS -N postprocess_mpas
+#PBS -o static_stdout
+#PBS -e static_stderr
+#PBS -M mckynde@gmail.com
+#PBS -V
+
+
+module load chpc/openmpi/4.0.0/gcc/6.1.0
+
+CS=60km_uniform_cp/analysis
+SIMDIR=/home/amakinde/lustre/sims/mpas
+
+ulimit -s unlimited
+cd ${SIMDIR}/${CS}
+
+
+
+nproc=`cat $PBS_NODEFILE | wc -l`
+echo nproc is $nproc
+echo " "
+echo PBS_NODEFILE is $PBS_NODEFILE
+cat $PBS_NODEFILE
+nproc=1
+#mpirun -np $nproc --mca btl_openib_allow_ib 1 ./init_atmosphere_model
+
+./cdo_mpas_postproc.sh >> log.postproc
+./cdo_mpas_prc2.sh >> log.prc

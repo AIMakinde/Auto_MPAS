@@ -1,4 +1,3 @@
-
 # Auto_MPAS
 
 **Auto_MPAS** is a collection of automation scripts designed to streamline the setup, configuration, and management of the MPAS-Atmosphere model, with potential expansion to MPAS-Ocean in the future. While it doesn't directly perform MPAS tasks, it simplifies the intricate steps required to run MPAS efficiently, especially on high-performance computing systems. This documentation will guide you through the repository structure, usage, and customization.
@@ -65,8 +64,8 @@ Auto_MPAS/
 │   ├── cdo_mpas_postp_precipitation.sh		# Specifically handles precipitation data.
 │   └── cdo_mpas_postp_geop.sh				# Computes geopotential height based on geometric height fields from MPAS data.
 ├── plotscripts/
-│   ├── ncl_scripts							# NCL Scripts for plotting field on native MPAS Grids
-│	└── python_scripts						# Python scripts for plotting fields on native MPAS Grids
+│   ├── ncl_scripts							# Collection of third-party NCL Scripts for plotting field on native MPAS Grids
+│	└── python_scripts						# Collection of third-part Python scripts for plotting fields on native MPAS Grids
 ├── docs/
     └── README.md                			# Repository documentation
    
@@ -78,7 +77,7 @@ Auto_MPAS/
 
 1. **Clone the Repository**:  
    ```bash
-   git clone https://github.com/yourusername/auto_mpas.git
+   git clone https://github.com/AIMakinde/Auto_MPAS.git
    cd auto_mpas
    ```
 

@@ -1,0 +1,6 @@
+zaxistype = pressure
+size      = 7
+name      = lev
+longname  = pressure
+units     = hPa
+levels    = 1000 925 850 700 500 250 200

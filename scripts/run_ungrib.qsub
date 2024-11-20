@@ -1,0 +1,22 @@
+#!/bin/bash
+#PBS -l select=1:ncpus=24:mpiprocs=24:nodetype=haswell_reg
+#PBS -P ERTH0904
+#PBS -q serial
+##PBS -W group_list=largeq
+#PBS -l walltime=48:00:00
+#PBS -m abe
+#PBS -N Ungrib
+#PBS -o ung_stdout
+#PBS -e ung_stderr
+#PBS -M mckynde@gmail.com
+#PBS -V
+
+module load chpc/openmpi/4.0.0/gcc/6.1.0
+source /apps/chpc/earth/WRF-3.8-pnc-impi_hwl/setWRF
+cd '/home/amakinde/lustre/sims/mpas/60km_auto_mpas/utils/wpsprd'
+
+
+#nproc=1024
+echo nproc is $nproc
+
+./bash_ung.sh

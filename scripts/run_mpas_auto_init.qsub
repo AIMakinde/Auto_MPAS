@@ -1,0 +1,245 @@
+#!/bin/bash
+#PBS -l select=1:ncpus=24:mpiprocs=24:mem=120gb:nodetype=haswell_reg
+#PBS -P ERTH0904
+#PBS -q smp
+#PBS -l walltime=48:00:00
+#PBS -m abe
+#PBS -N 2022_240km_MPASInit
+#PBS -o static_stdout
+#PBS -e static_stderr
+#PBS -M mckynde@gmail.com
+#PBS -V
+
+
+#==== To run this script ======
+# You need to copy and make sure you have
+# all the namelist and stream files
+# namelist.init_atmosphere_static, namelist.init_atmosphere_met, namelist.init_atmosphere_sst
+# streams.init_atmosphere_static, streams.init_atmosphere_met, namelist.init_atmosphere_sst
+#
+
+
+
+CS=240km_uniform
+SIMDIR=/home/amakinde/lustre/sims/mpas/test_240km_2
+
+
+
+
+
+# Global variable to hold number of processes that failed
+FAIL=0
+curRunName="Static Init"
+logsufix="static"
+
+module load chpc/openmpi/4.0.0/gcc/6.1.0
+source ${SIMDIR}/${CS}/mpas_init/setupMPAS
+ulimit -s unlimited
+
+
+
+
+
+function IsLastSuccessful(){
+  logfile=log.init_atmosphere.0000.out
+
+  if [[ -f $logfile ]]
+  then
+    errCnt=$( tail -n4 log.init_atmosphere.0000.out | head -1 |  cut -d '=' -f  2)
+    crtErrCnt=$( tail -n3 log.init_atmosphere.0000.out | head -1 |  cut -d '=' -f  2)
+
+    if [ "${errCnt}" -eq "0" ] && [ "${crtErrCnt}" -eq "0" ]
+    then
+        echo 0
+    else
+        echo 1
+    fi
+  else
+      echo 1
+  fi
+}
+
+
+function AwaitAllProc(){
+  ## Wait for all processes to finish
+  FAIL=0
+  for job in `jobs -p`
+  do
+      echo "waiting on ${job}"
+      wait $job || let "FAIL+=1"
+  done
+}
+
+function RunStatus(){
+  rst=$( IsLastSuccessful )
+
+  if [ "${FAIL}" -eq "0" ]
+  then
+     if [ "${rst}" -eq "0" ]
+     then
+         echo "${curRunNme} was successful"
+     else
+         echo "${curRunName} failed with one or more errors; check the log file"
+     fi
+  else
+     echo "${curRunName} failed! (at least ${FAIL} processes)"
+     exit ${FAIL}
+  fi
+}
+
+
+function CopyLogs(){
+  if [[ -f log.init_atmosphere.0000.out ]]
+  then
+    cp log.init_atmosphere.0000.out log.init_atmosphere.$logsufix.out
+  fi
+
+  if [[ -f log.init_atmosphere.0000.err ]]
+  then
+    cp log.init_atmosphere.0000.err log.init_atmosphere.$logsufix.err
+  fi
+}
+
+
+
+
+
+
+
+
+#========== Start Static Initialization =======================
+#
+
+curRunName="Static Init"
+logsufix="static"
+
+cd ${SIMDIR}/${CS}/mpas_init
+
+cp namelist.init_atmosphere_static namelist.init_atmosphere
+cp streams.init_atmosphere_static  streams.init_atmosphere
+
+
+nproc=`cat $PBS_NODEFILE | wc -l`
+echo nproc is $nproc
+cat $PBS_NODEFILE
+nproc=1
+echo "running static initialization"
+./init_atmosphere_model &> log.static_init.out
+
+
+
+
+## Wait for all processes to finish
+AwaitAllProc
+
+cd ${SIMDIR}/${CS}/mpas_init
+CopyLogs
+
+
+# Print run status
+RunStatus
+
+
+
+
+
+
+
+
+#======== Run Met(GFS) Initializatin =========
+# This assumes that there is a .static.nc file in the
+# mpas_init folder, from the last run above
+# and all your SSTs, and PRES file are all present
+# in the mpas_init
+#
+# Now copy the namelist and stream file for the meteorological init
+
+curRunName="Met Init"
+logsufix="met"
+cd ${SIMDIR}/${CS}/mpas_init
+
+cp namelist.init_atmosphere_met namelist.init_atmosphere
+cp streams.init_atmosphere_met  streams.init_atmosphere
+
+
+
+# The Met Initialization does not go well with
+# parallel computing so using single process
+# is the best.
+
+nproc=1
+echo nproc is $nproc
+cat $PBS_NODEFILE
+
+echo "running met initialization"
+
+#mpirun -np $nproc --mca btl_openib_allow_ib 1 ./init_atmosphere_model &> log.met_init.out
+./init_atmosphere_model &> log.met_init.out
+
+## Wait for all processes to finish
+AwaitAllProc
+
+cd ${SIMDIR}/${CS}/mpas_init
+CopyLogs
+
+# Print run status
+RunStatus
+
+
+
+
+
+#=========== Run Surface (SST) Initialization =========
+# This assumes that there is a .static.nc file in the
+# mpas_init folder, from the last run above
+# and all your SSTs file are all present
+# in the mpas_init
+#
+# Now copy the namelist and stream file for the surface init
+
+curRunName="Surface Init"
+logsufix="sst"
+
+cd ${SIMDIR}/${CS}/mpas_init
+cp namelist.init_atmosphere_sst namelist.init_atmosphere
+cp streams.init_atmosphere_sst  streams.init_atmosphere
+cp log.init_atmosphere.0000.out log.init_atmosphere.static.out
+cp log.init_atmosphere.0000.out log.init_atmosphere.static.out
+
+
+nproc=`cat $PBS_NODEFILE | wc -l`
+nproc=1
+echo nproc is $nproc
+cat $PBS_NODEFILE
+echo "running surface initialization"
+#mpirun -np $nproc --mca btl_openib_allow_ib 1 ./init_atmosphere_model &> log.sst_init.out
+./init_atmosphere_model &> log.sst_init.out
+
+## Wait for all processes to finish
+AwaitAllProc
+
+
+cd ${SIMDIR}/${CS}/mpas_init
+CopyLogs
+
+# print run status
+RunStatus
+
+touch init.sig
+
+echo "Initialization run successfully"
+
+
+# Initialization is done
+
+
+#echo "Submitting chained job for model integration"
+
+#ssh login2 /home/amakinde/lustre3p/sims/mpas/6010km_variable/mpas_atmos/run_mpas_auto_atmos.qsub
+
+#echo "Terminating Initialization job script.."
+
+# this script is terminating now.
+
+
+

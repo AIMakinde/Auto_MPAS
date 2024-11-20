@@ -1,0 +1,8 @@
+ ! NOAA/PMEL TMAP
+ ! FERRET v7.6 (optimized)
+ ! Linux 3.10.0-1127.10.1.el7.x86_64 64-bit - 06/25/20
+ !  9-Nov-24 16:47     
+
+use ./oldstuffs/diag.2019-04-20_00.00.00.nc
+sh d
+q

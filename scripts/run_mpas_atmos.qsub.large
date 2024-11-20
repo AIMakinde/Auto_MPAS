@@ -1,0 +1,30 @@
+#!/bin/bash
+#PBS -l select=16:ncpus=24:mpiprocs=24:nodetype=haswell_reg
+#PBS -P ERTH0904
+#PBS -q large
+#PBS -W group_list=largeq
+#PBS -l walltime=96:00:00
+#PBS -m abe
+#PBS -N 1999_6015km_MPASAtmos
+#PBS -o atmos_stdout
+#PBS -e atmos_stderr
+#PBS -M mckynde@gmail.com
+#PBS -V
+
+
+export LD_LIBRARY_PATH=""
+#module load chpc/parallel_studio_xe/18.0.2/2018.2.046
+#export LD_LIBRARY_PATH=/mnt/lustre/groups/ERTH0904/Models/MPAS/LIBRARIES/lib:$LD_LIBRARY_PATH
+#module load chpc/openmpi/4.0.0/gcc/6.1.0
+
+
+CS=6010km_variable
+SIMDIR=/home/amakinde/lustre/sims/mpas
+
+nproc=`cat $PBS_NODEFILE | wc -l`
+ulimit -s unlimited
+cd ${SIMDIR}/${CS}/mpas_atmos
+source setupMPAS
+echo nproc is $nproc
+mpirun -np $nproc ./atmosphere_model  
+

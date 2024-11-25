@@ -94,17 +94,17 @@ do
 		if [[ ${dnm} -gt 2010 ]]
 		then
 			# remove duplicate dataset
-			rm *.ipvgrbh*.grb2
+			rm *.ipvgrbh*.grb2*
 
 			# rename pressure files
-			for p in $( ls *.pgrbh.grb2 ); do mv "$p" "plv_$p"; done
+			for p in $( ls *.pgrbh.grb2* ); do mv "$p" "plv_$p"; done
 			
 		else
-			rm pgbl*.grb2
-			rm diab*.grb2
+			rm pgbl*.grb2*
+			rm diab*.grb2*
 
 			# rename pressure files
-			for p in $( ls pgbh*.grb2 ); do mv "$p" "plv_$p"; done
+			for p in $( ls pgbh*.grb2* ); do mv "$p" "plv_$p"; done
 		fi
 
 		prssub1="01010000"	
@@ -150,9 +150,9 @@ do
 		if [[ ${dnm} -gt 2010 ]]
 		then
 			# remove duplicate dataset
-			rm *.ipvgrbh.grb2
+			rm *.ipvgrbh.grb2*
 		else
-			rm pgbl*.grb2
+			rm pgbl*.grb2*
 		fi
 
 		sfcsub1="01010000"

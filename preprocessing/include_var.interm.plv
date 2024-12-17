@@ -1,0 +1,35 @@
+# Uncomment to include these variables:
+plevel_variables:
+  TT: "t"           # K       Air Temperature
+  RH: "r"          # %       Relative Humidity
+  SPECHUMD: "q"      # kgkg-1  Specific humidity
+  UU: "u"          # ms-1    Wind U COmponent
+  VV: "v"          # ms-1    Wind V COmponent
+  GHT: "z"           # m     Geopotential height
+
+surface_variables:
+  # TT: "t2m"           # K        air temperature | 2-meter air temperature
+  # UU: "u10"           # ms-1     10-meter u-wind
+  # VV: "v10"           # ms-1     10-meter v-wind
+  # LANDSEA: "lsm"      # fraction Land-sea mask 0=water, 1=land
+  # PSFC: "sp"          # Pa       Surface pressure
+  # PMSL: "msl"         # Pa       Mean sea level pressure
+  # SKINTEMP: "skt"     # K        Skin temperature
+  # SEAICE: "siconc"    # fraction Sea-ice fraction
+  # SST: "sst"          # K        Sea surface temperature
+  # SOILHGT: ""         # m        Soil height
+  # RH: ""              # %        Relative humidity Not needed if SPECHUMD is avalaible
+  # SPECHUMD: ""        # kgkg-1   Specifc humidity Not needed if RH is avalaible
+  # SNOW: ""            # kgm-2    Water equivalent snow depth
+  # TAVGSFC: ""         # K        Daily mean of surface air temperature
+
+
+soil_layers:
+  # ST1: "stl1"  # Soil temperature layer 1
+  # ST2: "stl2"  # Soil temperature layer 2
+  # ST3: "stl3"  # Soil temperature layer 3
+  # ST4: "stl4"  # Soil temperature layer 4
+  # SM1: "swvl1"  # Soil moisture layer 1
+  # SM2: "swvl2"  # Soil moisture layer 2
+  # SM3: "swvl3"  # Soil moisture layer 3
+  # SM4: "swvl4"  # Soil moisture layer 4

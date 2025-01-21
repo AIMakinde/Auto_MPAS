@@ -6,48 +6,76 @@ from datetime import datetime, timedelta
 from multiprocessing import Pool
 
 
-variables = [
-    '10m_u_component_of_wind', '10m_v_component_of_wind', '2m_dewpoint_temperature',
+lvariables = [
+    '10m_u_component_of_wind', '10m_v_component_of_wind', 
     '2m_temperature', 'mean_sea_level_pressure', 'sea_surface_temperature',
     'skin_temperature', 'soil_temperature_level_1', 'soil_temperature_level_2',
     'soil_temperature_level_3', 'soil_temperature_level_4', 'surface_pressure',
     'volumetric_soil_water_layer_1', 'volumetric_soil_water_layer_2', 'volumetric_soil_water_layer_3',
     'volumetric_soil_water_layer_4',
 
-    'land_sea_mask', 'leaf_area_index_high_vegetation', 'sea_ice_cover',
-    'snow_depth', 'snow_density', 'soil_type', 'surface_latent_heat_flux', 'top_net_solar_radiation_clear_sky',
-    'lake_cover', 'lake_depth', 'lake_ice_depth',
+    'land_sea_mask', 'sea_ice_cover',
+    'snow_depth', 'snow_density', 'soil_type'
 ]
 
 
+
 def download_era5_day(args):
-    start, north, west, south, east, variables, tsteps, format = args
-    
+    start, north, west, south, east, variables, tsteps, format, split_timestep = args
+
     c = cdsapi.Client()
 
     # CDS API requires hours to be specified explicitly in a list
-    hours = [f'{h:02d}:00' for h in range(0,24,tsteps)]
+    hours = [f'{h:02d}:00' for h in range(0, 24, tsteps)]
 
-    ofile = f'era5_sfc_{start.strftime("%Y%m%d")}.{format}'
-    try:
-        print(f"  [+] {start}...")
-        c.retrieve(
-            'reanalysis-era5-single-levels',
-            {
-                'product_type': 'reanalysis',
-                'variable': variables,
-                'year': start.year,
-                'month': f'{start.month:02d}',
-                'day': f'{start.day:02d}',
-                'time': hours,
-                'format': format,
-                'area': [north, west, south, east],
-            },
-            ofile
-        )
-        print(f'      completed. Data downloaded: {ofile}')
-    except Exception as e:
-        print(f"Error downloading for time range {start}: {e}")
+    # If splitting timesteps, save each timestep to a separate file
+    if split_timestep:
+        for hour in hours:
+            ofile = f'era5_sfc_{start.strftime("%Y%m%d")}{hour.replace(":", "")}.{format}'
+            try:
+                print(f"  [+] Downloading {start} at {hour}...")
+                c.retrieve(
+                    'reanalysis-era5-single-levels',
+                    {
+                        'product_type': 'reanalysis',
+                        'variable': variables,
+                        'year': start.year,
+                        'month': f'{start.month:02d}',
+                        'day': f'{start.day:02d}',
+                        'time': [hour],
+                        'format': format,
+                        'area': [north, west, south, east],
+                        'download_format': 'unarchived'
+                    },
+                    ofile
+                )
+                print(f'      completed. Data downloaded: {ofile}')
+            except Exception as e:
+                print(f"Error downloading for time {start} at {hour}: {e}")
+    else:
+        # Otherwise, download all hours in one file
+        ofile = f'era5_sfc_{start.strftime("%Y%m%d")}.{format}'
+        try:
+            print(f"  [+] Downloading {start}...")
+            c.retrieve(
+                'reanalysis-era5-single-levels',
+                {
+                    'product_type': 'reanalysis',
+                    'variable': variables,
+                    'year': start.year,
+                    'month': f'{start.month:02d}',
+                    'day': f'{start.day:02d}',
+                    'time': hours,
+                    'format': format,
+                    'area': [north, west, south, east],
+                    'download_format': 'unarchived'
+                },
+                ofile
+            )
+            print(f'      completed. Data downloaded: {ofile}')
+        except Exception as e:
+            print(f"Error downloading for time range {start}: {e}")
+
 
 def parse_arguments():
     parser = argparse.ArgumentParser(
@@ -64,8 +92,10 @@ def parse_arguments():
     parser.add_argument('--time_step', type=int, required=True, help='Time step in hours (e.g., 6 or 1 hour intervals)')
     parser.add_argument('--format', choices=['netcdf', 'grib'], default='grib', help="Output format (either 'netcdf' or 'grib')")
     parser.add_argument('--num_processes', type=int, default=4, help="Number of parallel processes to use (default is 4)")
+    parser.add_argument('--split_timestep', action='store_true', default=True, help="If set, each timestep will be downloaded to a separate file")
 
     return parser.parse_args()
+
 
 def generate_time_intervals(start_time, end_time):
     """
@@ -85,11 +115,11 @@ def generate_time_intervals(start_time, end_time):
         if next_time > end_time:
             next_time = end_time
 
-        # intervals.append((current_time, next_time - timedelta(hours=1)))
         intervals.append(current_time)
         current_time = next_time
 
     return intervals
+
 
 if __name__ == "__main__":
     # Parse command-line arguments
@@ -111,7 +141,7 @@ if __name__ == "__main__":
     time_intervals = generate_time_intervals(start_time, end_time)
 
     # Prepare arguments for each time interval download
-    download_args = [(start, args.north, args.west, args.south, args.east, variables, args.time_step, args.format) 
+    download_args = [(start, args.north, args.west, args.south, args.east, lvariables, args.time_step, args.format, args.split_timestep) 
                      for start in time_intervals]
 
     # Try use multiprocessing Pool to download the data for each time interval in parallel
@@ -127,11 +157,8 @@ if __name__ == "__main__":
         print(f"Failed to create a multiprocessing pool: {e}")
         parallelFailed = True
 
-
-    # Try download the data for each time interval in sequence
+    # Try download the data for each time interval in sequence if parallel download fails
     if parallelFailed:
-        # Download the datasets sequentially
         print(f"Downloading dataset sequentially.")
         for download_arg in download_args:
             download_era5_day(download_arg)
-        

@@ -5,7 +5,7 @@ prsenddate=198007020000
 sfcstartdate=198006300000
 sfcenddate=198010050000
 tstep=6
-datatype="era5"  	# cfsr
+datatype="era5"  	# OPTIONS:  "cfsr" | "era5"
 format=0			# 0 - grib2 | 1 - netcdf
 singlemultiyears=1
 
@@ -13,7 +13,16 @@ singlemultiyears=1
 #============ Main excution =================================#
 
 source /apps/chpc/bio/anaconda3-2020.02/etc/profile.d/conda.sh
-conda activate
+
+if [[ $datatype == "era5" ]]
+then 
+	conda activate cdsenv
+elif [[ $datatype == "cfsr" ]]
+then
+	conda activate
+fi
+
+
 
 prsstartyr=${prsstartdate:0:4}
 prsendyr=${prsenddate:0:4}
@@ -42,7 +51,7 @@ then
 	sfcsub1="${sfcstartdate:0:4}-${sfcstartdate:4:2}-${sfcstartdate:6:2}T${sfcstartdate:8:2}"
 	sfcsub2="${sfcenddate:0:4}-${sfcenddate:4:2}-${sfcenddate:6:2}T${sfcenddate:8:2}"
 
-elif [[ $datatype == "cfsr"]]
+elif [[ $datatype == "cfsr" ]]
 then
 	prssub1="${prsstartdate:4:8}"
 	prssub2="${prsenddate:4:8}"

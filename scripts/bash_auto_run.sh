@@ -2,34 +2,40 @@
 
 # ==== Forcing dataset section ===============
 
-dtpath="data/cfsr"				## where do you want all dataset to be downloaded to?
-prsdwnstartdatetime=202204070000		## start datetime for downloading pressure level forcing data
-prsdwnenddatetime=202204150000  		## Note: at least more than 6 days ahead of prsdwnstartdatetime, to avoid ungrib error
-sfcdwnstartdatetime=202204070000		## Start datetime for downloading surface forcing dataset
-sfcdwnenddatetime=202204150000			## End datatime for downloading surface forcing dataset
-singlemultiyears=1				## Option 0 - download forcing data year by year so that each year have its own directory. It is going to be a short year-to-year simulation
-						## Option 1 - download forcing data for all the years so that all the years reside in just one directory. It will be used for long/multi-year simulation
+dtpath="data/era5"						## where do you want all dataset to be downloaded to?
+prsdwnstartdatetime=202204010000		## start datetime for downloading pressure level forcing data
+prsdwnenddatetime=202204300000  		## Note: at least more than 6 days ahead of prsdwnstartdatetime, to avoid ungrib error
+sfcdwnstartdatetime=202204010000		## Start datetime for downloading surface forcing dataset
+sfcdwnenddatetime=202204300000			## End datatime for downloading surface forcing dataset
+singlemultiyears=1						## Option 0 (each year in his own directory) | 1 (all data in one directory)
+datasrc=0								## Options 0 - "cfsr" | 1 - "era5"
+
 
 
 # ===== Ungrib section ========================
 
-prsungrbstartdatetime=2022-04-07_00:00:00  	## Note: make sure its thesame as 'prsdwnstartdatetime' and formatted as it is (using '_' and ':" as date and time separator) to avoid ungrib error
-prsungrbenddatetime=2022-04-12_06:00:00		## Note: at most the end datetime should be 18 hrs less than 'prsdwnenddatetime'
-sfcungrbstartdatetime=2022-04-07_00:00:00	## Note: Should be less than or equal to 'prsungrbstartdatetime'
-sfcungrbenddatetime=2022-04-15_00:00:00		## Note: at most, it should be less than or equal to 'sfcdwnenddatetime'
-manyyearsungrib=1				## Option 0 - Ungrib forcing data year by year.
-						## Option 1 - Ungrib forcing data all at once, starting from 'sfcungrbstartdatetime' to 'sfcungrbenddatetime'
+prsungrbstartdatetime=2022-04-01_00:00:00  	## Note: make sure its thesame as 'prsdwnstartdatetime' and formatted as it is (using '_' and ':" as date and time separator) to avoid ungrib error
+prsungrbenddatetime=2022-04-30_00:00:00		## Note: at most the end datetime should be 18 hrs less than 'prsdwnenddatetime'
+sfcungrbstartdatetime=2022-04-01_00:00:00	## Note: Should be less than or equal to 'prsungrbstartdatetime'
+sfcungrbenddatetime=2022-04-30_00:00:00		## Note: at most, it should be less than or equal to 'sfcdwnenddatetime'
+manyyearsungrib=1							## Option - 0 (Ungrib forcing data year by year) | 1 (Ungrib forcing data all at once)
+
+
+
 
 # ========= Simulation settings section ========
 simstartdate=2022-04-07_00:00:00		## Note: Should be thesame as the 'prsungrbstartdatetime'
 simenddate=2022-04-15_00:00:00			## Can be any datetime you want the simulation to stop
 
-rundir="60km_uniform"			## Name of the model directory to create or over write. Note model excutables, files and output will be copied to this directory
-rsltn="60km"					## What resolution do you want to run? Remember to qoute it as string and include the unit
-lowRsltn=60      				## Note: the value is not qouted (i.e. not "" or ''). For variable resolution, set to the lowest resolution. For uniform resolution, use thesame value as 'rsltn'
-meshdir="meshes/60km"				## Where is location of the mesh for the particular resolutin you wish to run?
-ncores=192					## How many processors do which to use. Note: make sure a partitioning file for the number processors you have choosen is avaialable in the 'meshdir'
-LOGFILE="log.auto_60km"		## This bash script generates a log file. What do you wish to name the logfile?
+rundir="60km_uniform"					## Name of the model directory to create or over write. Note model excutables, files and output will be copied to this directory
+rsltn="60km"							## What resolution do you want to run? Remember to qoute it as string and include the unit
+lowRsltn=60      						## Note: the value is not qouted (i.e. not "" or ''). For variable resolution, set to the lowest resolution. For uniform resolution, use thesame value as 'rsltn'
+meshdir="meshes/60km"					## Where is location of the mesh for the particular resolutin you wish to run?
+ncores=192								## How many processors do which to use. Note: make sure a partitioning file for the number processors you have choosen is avaialable in the 'meshdir'
+LOGFILE="log.auto_60km"					## This bash script generates a log file. What do you wish to name the logfile?
+
+
+
 
 # ======== Simulation Switches =============
 # Option 0 - do not skip, run the process
@@ -39,12 +45,6 @@ skipdwn=1
 skipung=1
 skipinit=0
 skipatmos=0
-
-# ======== Dataset Options =============
-# Option 0 - Download forcing data from CFSR
-# Option 1 - Download forcing data from ERA5
-
-datasrc=0  ## Download CSFR
 
 
 

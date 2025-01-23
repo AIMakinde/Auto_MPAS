@@ -5,106 +5,6 @@ import os
 import argparse
 from multiprocessing import Pool
 
-def cosine_taper(lon, lat, lon_edge_min, lon_edge_max, lat_edge_min, lat_edge_max, buffer, coord_name):
-    """
-    Create a cosine taper for smooth blending along one dimension.
-    """
-    lon_weights = np.ones_like(lon)
-    lat_weights = np.ones_like(lat)
-
-    # Combine longitude and latitude weights
-    lon_weights_2d, lat_weights_2d = np.meshgrid(lon_weights, lat_weights)
-    weights = lon_weights_2d * lat_weights_2d
-
-    # Convert to xarray.DataArray for compatibility
-    taper_da = xr.DataArray(weights, dims=['latitude','longitude'], coords={'latitude': lat, 'longitude':lon})
-
-    lon_buffer_min = lon_edge_min - buffer
-    lon_buffer_max = lon_edge_max + buffer
-    lat_buffer_min = lat_edge_min - buffer
-    lat_buffer_max = lat_edge_max + buffer
-
-    # Blend at the lower edge
-    left_transition = (lon_weights_2d >= lon_edge_min - buffer) & (lon_weights_2d <= lon_edge_min + buffer) & (lat_weights_2d >= lat_buffer_min) & (lat_weights_2d <= lat_buffer_max)
-    right_transition = (lon_weights_2d >= lon_edge_max - buffer) & (lon_weights_2d <= lon_edge_max + buffer) & (lat_weights_2d >= lat_buffer_min) & (lat_weights_2d <= lat_buffer_max)
-    bottom_transition = (lat_weights_2d >= lat_edge_min - buffer) & (lat_weights_2d <= lat_edge_min + buffer) & (lon_weights_2d >= lon_buffer_min) & (lon_weights_2d <= lon_buffer_max)
-    top_transition = (lat_weights_2d >= lat_edge_max - buffer) & (lat_weights_2d <= lat_edge_max + buffer) & (lon_weights_2d >= lon_buffer_min) & (lon_weights_2d <= lon_buffer_max)
-
-    weights[left_transition] = 0.5 * (1 + np.cos(np.pi * (lon_weights_2d[left_transition] - lon_edge_min) / buffer))
-    weights[right_transition] = 0.5 * (1 + np.cos(np.pi * (lon_weights_2d[right_transition] - lon_edge_max) / buffer))
-
-    weights[bottom_transition] = 0.5 * (1 + np.cos(np.pi * (lat_weights_2d[bottom_transition] - lat_edge_min) / buffer))
-    weights[top_transition] = 0.5 * (1 + np.cos(np.pi * (lat_weights_2d[top_transition] - lat_edge_max) / buffer))
-    
-    # Convert to xarray.DataArray for compatibility
-    taper_da = xr.DataArray(weights, dims=['latitude','longitude'], coords={'latitude': lat, 'longitude':lon})
-    return taper_da
-
-def blend_edges(sst_updated, mask, lon_edge_min, lon_edge_max, lat_edge_min, lat_edge_max, buffer, epsilon=0.01):
-    """
-    Blend the edges of the modified SST region with the surrounding data for smooth transitions.
-    """
-    # Extract longitude and latitude coordinates
-    lon_2d = sst_updated.coords["longitude"].broadcast_like(sst_updated)
-    lat_2d = sst_updated.coords["latitude"].broadcast_like(sst_updated)
-
-    if lon_2d.ndim == 3:
-        lon_2d = lon_2d[0, :, :]
-        lat_2d = lat_2d[0, :, :]
-
-    # Define buffer regions
-    left_buffer_lon = (lon_2d >= lon_edge_min - buffer) & (lon_2d <= lon_edge_min + buffer) & \
-                      (lat_2d <= lat_edge_max + buffer) & (lat_2d >= lat_edge_min - buffer)
-    right_buffer_lon = (lon_2d >= lon_edge_max - buffer) & (lon_2d <= lon_edge_max + buffer) & \
-                       (lat_2d <= lat_edge_max + buffer) & (lat_2d >= lat_edge_min - buffer)
-    top_buffer_lat = (lat_2d <= lat_edge_max + buffer) & (lat_2d >= lat_edge_max - buffer) & \
-                     (lon_2d >= lon_edge_min - buffer) & (lon_2d <= lon_edge_max + buffer)
-    bottom_buffer_lat = (lat_2d <= lat_edge_min + buffer) & (lat_2d >= lat_edge_min - buffer) & \
-                        (lon_2d >= lon_edge_min - buffer) & (lon_2d <= lon_edge_max + buffer)
-
-    # Initialize weights with NaNs for land
-    weights = xr.where(mask > 0, np.nan, 1).broadcast_like(sst_updated)
-    if weights.ndim == 3:
-        weights = weights[0, :, :]
-
-    # Adjust weights using linear blending, ensuring weights never reach zero or one
-    print("Generating blending weights for left edge...")
-    left_weights = xr.where(left_buffer_lon, 
-                            epsilon + (1 - 2 * epsilon) * 
-                            (lon_2d - (lon_edge_min - buffer)) / (2 * buffer), 
-                            weights)
-
-    print("Generating blending weights for right edge...")
-    right_weights = xr.where(right_buffer_lon, 
-                             epsilon + (1 - 2 * epsilon) * 
-                             ((lon_edge_max + buffer) - lon_2d) / (2 * buffer), 
-                             left_weights)
-
-    print("Generating blending weights for bottom edge...")
-    bottom_weights = xr.where(bottom_buffer_lat, 
-                              epsilon + (1 - 2 * epsilon) * 
-                              (lat_2d - (lat_edge_min - buffer)) / (2 * buffer), 
-                              right_weights)
-
-    print("Generating blending weights for top edge...")
-    weights = xr.where(top_buffer_lat, 
-                       epsilon + (1 - 2 * epsilon) * 
-                       ((lat_edge_max + buffer) - lat_2d) / (2 * buffer), 
-                       bottom_weights)
-
-    # Apply the mask once for consistency
-    print("Applying mask to blending weights...")
-    weights = xr.where(mask > 0, np.nan, weights)
-
-    # Align weights to the full dimensions of sst_updated
-    print("Aligning weights to full dataset dimensions...")
-    weights = weights.broadcast_like(sst_updated)
-
-    # Perform the blending: interpolate using weighted averages
-    print("Blending SST data using weights...")
-    blended = (weights * sst_updated) + ((1 - weights) * sst_updated.where(weights.isnull(), 0))
-
-    return blended, weights
 
 def process_netcdf(input_nc, output_nc, lon_min, lon_max, lat_min, lat_max, threshold, plot, sst_varname="sst", mask_varname="lsm", buffer=8):
     """
@@ -146,14 +46,8 @@ def process_netcdf(input_nc, output_nc, lon_min, lon_max, lat_min, lat_max, thre
         sst_updated = sst.copy()
         sst_updated.loc[dict(longitude=slice(lon_min, lon_max), latitude=slice(lat_max, lat_min))] = sst_processed
 
-        # # Apply blending to ensure smooth transitions
-        # print("Applying blending to ensure smooth transition...")
-        # sst_blended, weights = blend_edges(sst_updated, mask, lon_min, lon_max, lat_min, lat_max, buffer)
-
         # Update the dataset with the blended SST
         ds["sst_updated"] = sst_updated
-        # ds["sst_smoothed"] = sst_blended
-        # ds["weights"] = weights
 
         # Write to the output NetCDF file
         ds.to_netcdf(output_nc, mode="w")

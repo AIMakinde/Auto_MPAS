@@ -1,0 +1,16 @@
+- lat: 06.0
+  lon: 20.0
+  constant: 0.5
+
+- lat: 06.0
+  lon: 20.25
+  constant: 0.5
+  
+- lat: 06.25
+  lon: 20.0
+  constant: 0.5
+
+- lat: 06.25
+  lon: 20.25
+  constant: 0.5
+

@@ -2,40 +2,34 @@
 
 # ==== Forcing dataset section ===============
 
-dtpath="data/era5"						## where do you want all dataset to be downloaded to?
-prsdwnstartdatetime=202204010000		## start datetime for downloading pressure level forcing data
-prsdwnenddatetime=202204300000  		## Note: at least more than 6 days ahead of prsdwnstartdatetime, to avoid ungrib error
-sfcdwnstartdatetime=202204010000		## Start datetime for downloading surface forcing dataset
-sfcdwnenddatetime=202204300000			## End datatime for downloading surface forcing dataset
-singlemultiyears=1						## Option 0 (each year in his own directory) | 1 (all data in one directory)
-datasrc=0								## Options 0 - "cfsr" | 1 - "era5"
-
+dtpath="data/era5/for_agulhas/ctrl"				## where do you want all dataset to be downloaded to?
+prsdwnstartdatetime=202204050000		## start datetime for downloading pressure level forcing data
+prsdwnenddatetime=202204200000  		## Note: at least more than 6 days ahead of prsdwnstartdatetime, to avoid ungrib error
+sfcdwnstartdatetime=202204050000		## Start datetime for downloading surface forcing dataset
+sfcdwnenddatetime=202204200000			## End datatime for downloading surface forcing dataset
+singlemultiyears=1				## Option 0 - download forcing data year by year so that each year have its own directory. It is going to be a short year-to-year simulation
+						## Option 1 - download forcing data for all the years so that all the years reside in just one directory. It will be used for long/multi-year simulation
 
 
 # ===== Ungrib section ========================
 
-prsungrbstartdatetime=2022-04-01_00:00:00  	## Note: make sure its thesame as 'prsdwnstartdatetime' and formatted as it is (using '_' and ':" as date and time separator) to avoid ungrib error
-prsungrbenddatetime=2022-04-30_00:00:00		## Note: at most the end datetime should be 18 hrs less than 'prsdwnenddatetime'
-sfcungrbstartdatetime=2022-04-01_00:00:00	## Note: Should be less than or equal to 'prsungrbstartdatetime'
-sfcungrbenddatetime=2022-04-30_00:00:00		## Note: at most, it should be less than or equal to 'sfcdwnenddatetime'
-manyyearsungrib=1							## Option - 0 (Ungrib forcing data year by year) | 1 (Ungrib forcing data all at once)
-
-
-
+prsungrbstartdatetime=2022-04-05_00:00:00  	## Note: make sure its thesame as 'prsdwnstartdatetime' and formatted as it is (using '_' and ':" as date and time separator) to avoid ungrib error
+prsungrbenddatetime=2022-04-20_00:00:00		## Note: at most the end datetime should be 18 hrs less than 'prsdwnenddatetime'
+sfcungrbstartdatetime=2022-04-05_00:00:00	## Note: Should be less than or equal to 'prsungrbstartdatetime'
+sfcungrbenddatetime=2022-04-20_00:00:00		## Note: at most, it should be less than or equal to 'sfcdwnenddatetime'
+manyyearsungrib=1				## Option 0 - Ungrib forcing data year by year.
+						## Option 1 - Ungrib forcing data all at once, starting from 'sfcungrbstartdatetime' to 'sfcungrbenddatetime'
 
 # ========= Simulation settings section ========
 simstartdate=2022-04-07_00:00:00		## Note: Should be thesame as the 'prsungrbstartdatetime'
-simenddate=2022-04-15_00:00:00			## Can be any datetime you want the simulation to stop
+simenddate=2022-04-17_00:00:00			## Can be any datetime you want the simulation to stop
 
-rundir="60km_uniform"					## Name of the model directory to create or over write. Note model excutables, files and output will be copied to this directory
-rsltn="60km"							## What resolution do you want to run? Remember to qoute it as string and include the unit
-lowRsltn=60      						## Note: the value is not qouted (i.e. not "" or ''). For variable resolution, set to the lowest resolution. For uniform resolution, use thesame value as 'rsltn'
-meshdir="meshes/60km"					## Where is location of the mesh for the particular resolutin you wish to run?
-ncores=192								## How many processors do which to use. Note: make sure a partitioning file for the number processors you have choosen is avaialable in the 'meshdir'
-LOGFILE="log.auto_60km"					## This bash script generates a log file. What do you wish to name the logfile?
-
-
-
+rundir="ctrl_sim/ctrl"			## Name of the model directory to create or over write. Note model excutables, files and output will be copied to this directory
+rsltn="60km"					## What resolution do you want to run? Remember to qoute it as string and include the unit
+lowRsltn=03      				## Note: the value is not qouted (i.e. not "" or ''). For variable resolution, set to the lowest resolution. For uniform resolution, use thesame value as 'rsltn'
+meshdir="meshes/6003km/regrid_sa"				## Where is location of the mesh for the particular resolutin you wish to run?
+ncores=576					## How many processors do which to use. Note: make sure a partitioning file for the number processors you have choosen is avaialable in the 'meshdir'
+LOGFILE="log.era5-ctrl_ctrl_6003km"		## This bash script generates a log file. What do you wish to name the logfile?
 
 # ======== Simulation Switches =============
 # Option 0 - do not skip, run the process
@@ -46,6 +40,15 @@ skipung=1
 skipinit=0
 skipatmos=0
 
+# ======== Dataset Options =============
+# Option 0 - Download forcing data from CFSR
+# Option 1 - Download forcing data from ERA5
+
+datasrc=1  ## Download CSFR
+jobprfx=""
+grdprfx="x"
+metprfx="PRES"
+sfcprfx="SST"
 
 
 
@@ -61,7 +64,6 @@ skipatmos=0
 
 bpath="$( pwd )"
 yr="${prsdwnstartdatetime:0:4}"
-
 
 
 # Remove and create the log file
@@ -121,7 +123,7 @@ then
 		sed -i "4s|.*|${prsd2}|" bash_dwn_era5.sh
 		sed -i "5s|.*|${sfcd1}|" bash_dwn_era5.sh
 		sed -i "6s|.*|${sfcd2}|" bash_dwn_era5.sh
-		sed -i "7s|.*|${sfcd3}|" bash_dwn_era5.sh
+		sed -i "8s|.*|${sfcd3}|" bash_dwn_era5.sh
 	fi
 
 	# run download script
@@ -251,22 +253,32 @@ then
 
 	cd ./${rundir}/mpas_init/
 
-	ln -sf ${bpath}/${meshdir}/x*.grid.nc .
-	ln -sf ${bpath}/${meshdir}/x*.graph.info .
+	ln -sf ${bpath}/${meshdir}/${grdprfx}*.grid.nc .
+	ln -sf ${bpath}/${meshdir}/${grdprfx}*.graph.info .
 
 
 	# modify namelists
-	str1="    config_geog_data_path = '${bpath}/${rundir}/GEOG/'"
-	tmp=$( ls ${bpath}/${meshdir}/x*.grid.nc )  # get fullname of grid file e.g ~/x6.999426.grid.nc
+	str1a="    config_geog_data_path = '${bpath}/${rundir}/GEOG/'"
+	str1b="    config_met_prefix = '${metprfx}'"
+	str1c="    config_sfc_prefix = '${sfcprfx}'"
+	tmp=$( ls ${bpath}/${meshdir}/${grdprfx}*.grid.nc )  # get fullname of grid file e.g ~/x6.999426.grid.nc
 	fname=$(basename "${tmp}" )  # extract filename only
 	parts=( ${fname//./ } )     # split the name by "."
-	str1b="    config_block_decomp_file_prefix = '${parts[0]}.${parts[1]}.graph.info.part.'"
-	sed -i "19s|.*|${str1}|" namelist.init_atmosphere_met
-	sed -i "56s|.*|${str1b}|" namelist.init_atmosphere_met
-	sed -i "20s|.*|${str1}|" namelist.init_atmosphere_sst
-	sed -i "57s|.*|${str1b}|" namelist.init_atmosphere_sst
-	sed -i "19s|.*|${str1}|" namelist.init_atmosphere_static
-	sed -i "56s|.*|${str1b}|" namelist.init_atmosphere_static
+	str1d="    config_block_decomp_file_prefix = '${parts[0]}.${parts[1]}.graph.info.part.'"
+	sed -i "19s|.*|${str1a}|" namelist.init_atmosphere_met
+	sed -i "56s|.*|${str1d}|" namelist.init_atmosphere_met
+	sed -i "20s|.*|${str1b}|" namelist.init_atmosphere_met
+	sed -i "21s|.*|${str1c}|" namelist.init_atmosphere_met
+	
+	sed -i "20s|.*|${str1a}|" namelist.init_atmosphere_sst
+	sed -i "57s|.*|${str1d}|" namelist.init_atmosphere_sst
+	sed -i "21s|.*|${str1b}|" namelist.init_atmosphere_sst
+	sed -i "22s|.*|${str1c}|" namelist.init_atmosphere_sst
+
+	sed -i "19s|.*|${str1a}|" namelist.init_atmosphere_static
+	sed -i "56s|.*|${str1d}|" namelist.init_atmosphere_static
+	sed -i "20s|.*|${str1b}|" namelist.init_atmosphere_static
+	sed -i "21s|.*|${str1c}|" namelist.init_atmosphere_static
 
 	# modify streams files
 	str2="                  filename_template='${parts[0]}.${parts[1]}.grid.nc'"
@@ -299,6 +311,10 @@ then
 	dstr4="enddate='${simenddate:5:14}'  # mon day hr min sec"
 	dstr5="datapath='${bpath}/${dtpath}'"
 	dstr5b="rsltn='${rsltn}'"
+	dstr5c="jobprfx='${jobprfx}'"
+	dstr5d="grdprfx='${grdprfx}'"
+	dstr5e="metprfx='${metprfx}'"
+	dstr5f="sfcprfx='${sfcprfx}'"
 
 	sed -i "3s|.*|${dstr1}|" bash_init.sh
 	sed -i "4s|.*|${dstr2}|" bash_init.sh
@@ -350,12 +366,12 @@ then
 
 	cd ./${rundir}/mpas_atmos/
 
-	ln -sf ${bpath}/${meshdir}/x*.graph.info.part.${ncores} .
+	ln -sf ${bpath}/${meshdir}/${grdprfx}*.graph.info.part.${ncores} .
 
 	# modify run qsub
 	nodes=$(( (ncores+24-1)/24 ))
 	dstr6a="#PBS -l select=${nodes}:ncpus=24:mpiprocs=24:nodetype=haswell_reg"
-	dstr6b="#PBS -N ${yr}_${rsltn}-Atmos"
+	dstr6b="#PBS -N ${jobprfx}${yr}_${rsltn}-Atmos"
 	dstr6c="CS=${rundir}"
 	dstr6d="SIMDIR=${bpath}"
 	dstr6e="nproc=${ncores}"
@@ -366,7 +382,7 @@ then
 	sed -i "25s|.*|${dstr6e}|" run_mpas_atmos.qsub
 
 	# modify namelist
-	tmp=$( ls ${bpath}/${meshdir}/x*.grid.nc )  # get fullname of grid file e.g ~/x6.999426.grid.nc
+	tmp=$( ls ${bpath}/${meshdir}/${grdprfx}*.grid.nc )  # get fullname of grid file e.g ~/x6.999426.grid.nc
 	fname=$(basename "${tmp}" )  # extract filename only
 	parts=( ${fname//./ } )     # split the name by "."
 	drsltn=$(( lowRsltn * 5 ))  # calculate timestep in seconds (5sec per km is recommended)

@@ -10,6 +10,11 @@ jobsig="init.sig"
 ismultipleshortruns=0
 rsltn='240km'
 
+jobprfx=""
+grdprfx="x"
+metprfx="ENSB01"
+sfcprfx="SST"
+
 #============ Main execution begins =================================#
 
 start=$(( startyr + 0 ))
@@ -63,18 +68,18 @@ do
 	sed -i "7s/.*/${dsstr}/" namelist.init_atmosphere_static
 	sed -i "8s/.*/${destr}/" namelist.init_atmosphere_static
 
-	ttle="#PBS -N ${dst}_${rsltn}_MPASInit"
+	ttle="#PBS -N ${jobprfx}${dst}_${rsltn}_MPASInit"
 	sed -i "7s/.*/${ttle}/" run_mpas_auto_init.qsub
 
 	echo "linking forcing files..."
-	ln -sf ${dpath}/PRES\:$d-${prsstart} .
+	ln -sf ${dpath}/${metprfx}\:$d-${prsstart} .
 
 	if [ ${ismultipleshortruns} -le 0 ]
 	then
-		for m in $( seq -w "${start}" "${end}" ); do ln -sf ${dpath}/SST\:${m}-* . ; done
+		for m in $( seq -w "${start}" "${end}" ); do ln -sf ${dpath}/${sfcprfx}\:${m}-* . ; done
 #        ln -sf ${dpath}/SST\:$d-10-{01..04}* .
 	else
-		for m in $( seq -w "${stmon}" "${edmon}" ); do ln -sf ${dpath}/SST\:$d-${m}-* . ; done
+		for m in $( seq -w "${stmon}" "${edmon}" ); do ln -sf ${dpath}/${sfcprfx}\:$d-${m}-* . ; done
 	fi
 
 
@@ -92,10 +97,10 @@ do
 
 	# move result
 	mkdir "${dst}"
-	mv x*init.nc ./${dst}
-	mv x*static.nc ./${dst}
-	mv x*sfc_update.nc ./${dst}
-	cp x*grid.nc ./${dst}
+	mv ${grdprfx}*init.nc ./${dst}
+	mv ${grdprfx}*static.nc ./${dst}
+	mv ${grdprfx}*sfc_update.nc ./${dst}
+	cp ${grdprfx}*grid.nc ./${dst}
 	mv log.* ./${dst}
 
 	if [ ${ismultipleshortruns} -le 0 ]

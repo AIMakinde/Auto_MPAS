@@ -322,6 +322,10 @@ then
 	sed -i "6s|.*|${dstr4}|" bash_init.sh
 	sed -i "7s|.*|${dstr5}|" bash_init.sh
 	sed -i "11s|.*|${dstr5b}|" bash_init.sh
+	sed -i "13s|.*|${dstr5c}|" bash_init.sh
+	sed -i "14s|.*|${dstr5d}|" bash_init.sh
+	sed -i "15s|.*|${dstr5e}|" bash_init.sh
+	sed -i "16s|.*|${dstr5f}|" bash_init.sh
 
 
 	# run bash script

@@ -65,6 +65,8 @@ sfcprfx="SST"
 bpath="$( pwd )"
 yr="${prsdwnstartdatetime:0:4}"
 
+dwnscriptdir="../preprocessing/download"
+
 
 # Remove and create the log file
 [ -f ${LOGFILE} ] && rm ${LOGFILE}
@@ -90,16 +92,16 @@ then
 
 	if [ ${datasrc} == "0" ];
 	then
-		cp rdams_client.py ./${dtpath}/
-		cp rdams_helper.py ./${dtpath}/
-		cp cfsr_dwn_prslev.py ./${dtpath}/
-		cp cfsr_dwn_sfc.py ./${dtpath}/
-		cp rdams_token.txt ./${dtpath}/
-		cp bash_dwn_cfsr.sh ./${dtpath}/
+		cp ${dwnscriptdir}/rdams_client.py ./${dtpath}/
+		cp ${dwnscriptdir}/rdams_helper.py ./${dtpath}/
+		cp ${dwnscriptdir}/cfsr_dwn_prslev.py ./${dtpath}/
+		cp ${dwnscriptdir}/cfsr_dwn_sfc.py ./${dtpath}/
+		cp ${dwnscriptdir}/rdams_token.txt ./${dtpath}/
+		cp ${dwnscriptdir}/bash_dwn_cfsr.sh ./${dtpath}/
 	else
-		cp bash_dwn_era5.sh ./${dtpath}/
-		cp era5_dwn_prslev.py ./${dtpath}/
-		cp era5_dwn_sfc.py ./${dtpath}/
+		cp ${dwnscriptdir}/bash_dwn_era5.sh ./${dtpath}/
+		cp ${dwnscriptdir}/era5_dwn_prslev.py ./${dtpath}/
+		cp ${dwnscriptdir}/era5_dwn_sfc.py ./${dtpath}/
 	fi
 
 	# change working directory to download folder

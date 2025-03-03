@@ -161,7 +161,7 @@ touch ${ROUTPUT}
     # link new files
     ln -sf ../mpas_init/${y}/x* .
 
-    ttle="#PBS -N ${y}_${rsltn}-Atmos"
+    ttle="#PBS -N ${jobprfx}${y}_${rsltn}-Atmos"
     sed -i "8s/.*/${ttle}/" run_mpas_atmos.qsub
 
     sh restart_script.sh ${simstartdate} ${simenddate}

@@ -52,7 +52,7 @@ CLIM_ENDHOUR='00'
 rsltn="60km"
 ROUTPUT="log.restart_clim_0000.out"
 
-
+jobprfx=""
 
 
 

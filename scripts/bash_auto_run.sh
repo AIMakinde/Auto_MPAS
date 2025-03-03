@@ -416,6 +416,7 @@ then
 	dstr13="CLIM_STARTHOUR='${simstartdate:11:2}'"
 	dstr14="CLIM_ENDHOUR='${simenddate:11:2}'"
 	dstr15="rsltn='${rsltn}'"
+	dstr16="jobprfx='${jobprfx}'"
 
 	sed -i "44s|.*|${dstr7}|" bash_atmos.sh
 	sed -i "45s|.*|${dstr8}|" bash_atmos.sh
@@ -426,6 +427,7 @@ then
 	sed -i "50s|.*|${dstr13}|" bash_atmos.sh
 	sed -i "51s|.*|${dstr14}|" bash_atmos.sh
 	sed -i "52s|.*|${dstr15}|" bash_atmos.sh
+	sed -i "55s|.*|${dstr16}|" bash_atmos.sh
 
 	# run bash script
 	./bash_atmos.sh

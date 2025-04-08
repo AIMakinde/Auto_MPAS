@@ -8,13 +8,13 @@ of three modes:
     3) "value_plus_constant":    Replace with (original value + constant).
 
 Processing parameters (region, threshold, replacement mode/value, plotting options, etc.) are 
-read from a YAML configuration file named 'agfilter.config' located in the same directory as the script.
+read from a YAML configuration file named 'config.filter' located in the same directory as the script.
 SST input files must be provided as command-line arguments.
 
 Usage:
     python agulhas_filter_nc.py sst_file1.nc sst_file2.nc ...
 
-Example agfilter.config:
+Example config.filter:
 
 ----------------------------------------
 region:
@@ -119,6 +119,9 @@ def process_netcdf(sst_input, lsm_input, output_nc,
     except Exception as e:
         print(f"Error processing {sst_input}: {e}")
 
+
+
+
 def plot_sst_comparison(plot_suffix, sst_original, sst_mod, sst_difference,
                         lon_min, lon_max, lat_min, lat_max):
     """
@@ -148,6 +151,8 @@ def plot_sst_comparison(plot_suffix, sst_original, sst_mod, sst_difference,
     plt.savefig(plot_filename)
     print(f"Plot saved as {plot_filename}")
 
+
+
 def process_file(args):
     """
     Unpack arguments for multiprocessing.
@@ -161,6 +166,8 @@ def process_file(args):
                    threshold, rep_mode, rep_value, plot,
                    sst_varname, mask_varname)
 
+
+
 def load_config(config_path):
     """
     Load the YAML configuration file.
@@ -169,10 +176,12 @@ def load_config(config_path):
         config = yaml.safe_load(f)
     return config
 
+
+
 if __name__ == "__main__":
-    # Locate the configuration file (agfilter.config in the same directory as the script)
+    # Locate the configuration file (config.filter in the same directory as the script)
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    config_file = os.path.join(script_dir, "agfilter.config")
+    config_file = os.path.join(script_dir, "config.filter")
     if not os.path.exists(config_file):
         print(f"Error: Configuration file {config_file} not found!")
         sys.exit(1)
@@ -193,7 +202,7 @@ if __name__ == "__main__":
     lat_min = region_conf.get("lat_min")
     lat_max = region_conf.get("lat_max")
     if None in (lon_min, lon_max, lat_min, lat_max):
-        print("Error: Region parameters (lon_min, lon_max, lat_min, lat_max) must be specified in the agfilter.config.")
+        print("Error: Region parameters (lon_min, lon_max, lat_min, lat_max) must be specified in the config.filter.")
         sys.exit(1)
 
     # Extract processing parameters

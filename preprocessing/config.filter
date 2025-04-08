@@ -7,8 +7,8 @@ region:
 processing:
   threshold: 0.5  # Grid points exceeding (zonal average + threshold) will be modified.
   replacement:
-    mode: "constant_plus_avg"   # Options: "constant", "constant_plus_avg", "value_plus_constant"
-    value: -1.0                 # The constant value (in degrees) to use.
+    mode: "avg_plus_constant"   # Options: "constant", "avg_plus_constant", "value_plus_constant"
+    constant: -1.0                 # The constant value (in degrees) to use.
   plot: true
   num_procs: 2
 

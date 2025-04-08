@@ -4,7 +4,7 @@ This script processes SST data from NetCDF files by comparing each grid point to
 and, for grid points that exceed (zonal average + threshold), replaces their value according to one 
 of three modes:
     1) "constant":             Replace with a constant value.
-    2) "constant_plus_avg":      Replace with (zonal average + constant).
+    2) "avg_plus_constant":      Replace with (zonal average + constant).
     3) "value_plus_constant":    Replace with (original value + constant).
 
 Processing parameters (region, threshold, replacement mode/value, plotting options, etc.) are 
@@ -26,7 +26,7 @@ region:
 processing:
   threshold: 0.5  # Grid points exceeding (zonal average + threshold) will be modified.
   replacement:
-    mode: "constant_plus_avg"   # Options: "constant", "constant_plus_avg", "value_plus_constant"
+    mode: "avg_plus_constant"   # Options: "constant", "avg_plus_constant", "value_plus_constant"
     value: -1.0                 # The constant value to use in the replacement.
   plot: true
   num_procs: 2
@@ -58,7 +58,7 @@ def process_netcdf(sst_input, lsm_input, output_nc,
     Process a single SST file using the LSM file for masking.
     For grid points exceeding (zonal average + threshold), replace them based on the selected mode:
       - "constant":             new value = rep_value
-      - "constant_plus_avg":      new value = zonal average + rep_value
+      - "avg_plus_constant":      new value = zonal average + rep_value
       - "value_plus_constant":    new value = original value + rep_value
     """
     try:
@@ -91,7 +91,7 @@ def process_netcdf(sst_input, lsm_input, output_nc,
         # Compute the replacement value based on the selected mode.
         if rep_mode == "constant":
             replacement_val = rep_value
-        elif rep_mode == "constant_plus_avg":
+        elif rep_mode == "avg_plus_constant":
             replacement_val = zonal_avg_broadcast + rep_value
         elif rep_mode == "value_plus_constant":
             replacement_val = sst_region + rep_value
@@ -209,8 +209,8 @@ if __name__ == "__main__":
     proc_conf = config.get("processing", {})
     threshold = proc_conf.get("threshold", 0.0)
     rep_conf = proc_conf.get("replacement", {})
-    rep_mode = rep_conf.get("mode", "constant_plus_avg")
-    rep_value = rep_conf.get("value", 0.0)
+    rep_mode = rep_conf.get("mode", "avg_plus_constant")
+    rep_value = rep_conf.get("constant", 0.0)
     plot = proc_conf.get("plot", False)
     num_procs = proc_conf.get("num_procs", 1)
 

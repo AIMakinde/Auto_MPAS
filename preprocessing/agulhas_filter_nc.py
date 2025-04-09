@@ -87,14 +87,15 @@ def process_netcdf(sst_input, lsm_input, output_nc,
         # Compute zonal average on the masked region and broadcast to the region shape
         zonal_avg = sst_masked_region.mean(dim="longitude")
         zonal_avg_broadcast = zonal_avg.broadcast_like(sst_region)
+        sst_masked_region_broadcast = sst_masked_region.broadcast_like(sst_region)
 
         # Compute the replacement value based on the selected mode.
         if rep_mode == "constant":
-            replacement_val = rep_value
+            replacement_val = (zonal_avg_broadcast * 0) + rep_value
         elif rep_mode == "avg_plus_constant":
             replacement_val = zonal_avg_broadcast + rep_value
         elif rep_mode == "value_plus_constant":
-            replacement_val = sst_region + rep_value
+            replacement_val = sst_masked_region_broadcast + rep_value
         else:
             raise ValueError(f"Invalid replacement mode: {rep_mode}")
 

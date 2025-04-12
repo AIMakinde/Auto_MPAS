@@ -146,7 +146,7 @@ def main():
     # Set up argument parser
     parser = argparse.ArgumentParser(description="Convert NetCDF variables to WRF/MPAS intermediate files")
     parser.add_argument("-o", "--outprefix", required=True, help="Output prefix for intermediate files")
-    parser.add_argument("-p", "--parallel", type=int, default=4, help="Number of parallel processes (default: 4)")
+    parser.add_argument("-p", "--parallel", type=int, default=1, help="Number of parallel processes (default: 4)")
     parser.add_argument("-cg", "--convert-gh", action="store_true", default=False, help="Convert geopotential height from m^2/s^2 to meters")
     parser.add_argument("inputs", nargs='+', help="Path to one or more input NetCDF files")
     args = parser.parse_args()

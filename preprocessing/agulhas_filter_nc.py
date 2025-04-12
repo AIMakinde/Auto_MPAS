@@ -87,7 +87,7 @@ def process_netcdf(sst_input, lsm_input, output_nc,
         # Compute zonal average on the masked region and broadcast to the region shape
         zonal_avg = sst_masked_region.mean(dim="longitude")
         zonal_avg_broadcast = zonal_avg.broadcast_like(sst_region)
-        sst_masked_region_broadcast = sst_masked_region.broadcast_like(sst_region)
+        #sst_masked_region_broadcast = sst_masked_region.broadcast_like(sst_region)
 
         # Compute the replacement value based on the selected mode.
         if rep_mode == "constant":
@@ -95,12 +95,12 @@ def process_netcdf(sst_input, lsm_input, output_nc,
         elif rep_mode == "avg_plus_constant":
             replacement_val = zonal_avg_broadcast + rep_value
         elif rep_mode == "value_plus_constant":
-            replacement_val = sst_masked_region_broadcast + rep_value
+            replacement_val = sst_region + rep_value
         else:
             raise ValueError(f"Invalid replacement mode: {rep_mode}")
 
         # Replace grid points where sst > (zonal average + threshold)
-        sst_processed = xr.where(sst_region > zonal_avg_broadcast + threshold,
+        sst_processed = xr.where(sst_region >= zonal_avg_broadcast + threshold,
                                  replacement_val, sst_region)
 
         # Update SST data in the original dataset for the selected region
@@ -110,6 +110,7 @@ def process_netcdf(sst_input, lsm_input, output_nc,
 
         # Save updated dataset to output file
         ds_sst["sst_updated"] = sst_updated
+        ds_sst["zonal_avg"] = zonal_avg_broadcast
         ds_sst.to_netcdf(output_nc, mode="w")
         print(f"Processed {sst_input} successfully. Output saved to {output_nc}")
 

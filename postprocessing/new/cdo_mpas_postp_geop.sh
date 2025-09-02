@@ -2,7 +2,7 @@
 
 prfx1="$1"
 prfx2="$2"
-filenamepattern="hg_hrs_mpas6003_${prfx1}_${prfx2}-p027_era5_*.nc"
+filenamepattern="hg_hrs_mpas60_${prfx1}_${prfx2}-p5_era5_*.nc"
 
 #================================
 #                          Ro * z

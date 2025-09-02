@@ -2,7 +2,7 @@
 
 
 filename="latlon.nc"
-prfx1="6003_$1_$2-p027_era5"
+prfx1="60_$1_$2-p5_era5"
 prfx2="2022"
 prfx3="hrs"
 outcalender="2022-04-07,09:00:00,3hours"
@@ -139,13 +139,13 @@ echo ""
 echo "extracting variables into its own file..."
 
 # Do the deaccumulation (i.e subtraction) before asigning taxis
-cdo chname,rainc,rain -selvar,rainc ${filename} rainc_mpas${prfx1}_${prfx2}.nc
-cdo chname,rainnc,rain -selvar,rainnc ${filename} rainnc_mpas${prfx1}_${prfx2}.nc
+cdo -selvar,rainc ${filename} rainc_mpas${prfx1}_${prfx2}.nc
+cdo -selvar,rainnc ${filename} rainnc_mpas${prfx1}_${prfx2}.nc
 
 if [[ $doBucket -ge 1 ]]
 then
-	cdo chname,i_rainc,rain -selvar,i_rainc ${filename} irainc_mpas${prfx1}_${prfx2}.nc
-	cdo chname,i_rainnc,rain -selvar,i_rainnc ${filename} irainnc_mpas${prfx1}_${prfx2}.nc
+	cdo -selvar,i_rainc ${filename} irainc_mpas${prfx1}_${prfx2}.nc
+	cdo -selvar,i_rainnc ${filename} irainnc_mpas${prfx1}_${prfx2}.nc
 
 	# calculate totatl precipitation
 	echo "calculating totatl precipitation..."
@@ -154,14 +154,10 @@ then
 	cdo mulc,100 irainnc_mpas${prfx1}_${prfx2}.nc irainnc_mpas${prfx1}_total_${prfx2}.nc
 
 	# add all together
-	cdo -add rainc_mpas${prfx1}_${prfx2}.nc irainc_mpas${prfx1}_total_${prfx2}.nc total_rainc_mpas${prfx1}_${prfx2}.nc
-	cdo -add rainnc_mpas${prfx1}_${prfx2}.nc irainnc_mpas${prfx1}_total_${prfx2}.nc total_rainnc_mpas${prfx1}_${prfx2}.nc
-	cdo -chname,rain,prc -add total_rainc_mpas${prfx1}_${prfx2}.nc total_rainnc_mpas${prfx1}_${prfx2} totalprc_mpas${prfx1}_${prfx2}.nc
+	cdo -chname,rainc,prc -add rainc_mpas${prfx1}_${prfx2}.nc irainc_mpas${prfx1}_total_${prfx2}.nc rainnc_mpas${prfx1}_${prfx2}.nc irainnc_mpas${prfx1}_total_${prfx2}.nc totalprc_mpas${prfx1}_${prfx2}.nc
 else
 	# add all together
-	mv rainc_mpas${prfx1}_${prfx2}.nc total_rainc_mpas${prfx1}_${prfx2}.nc
-	mv rainnc_mpas${prfx1}_${prfx2}.nc total_rainnc_mpas${prfx1}_${prfx2}.nc
-	cdo -chname,rain,prc -add total_rainc_mpas${prfx1}_${prfx2}.nc total_rainnc_mpas${prfx1}_${prfx2}.nc totalprc_mpas${prfx1}_${prfx2}.nc
+	cdo -chname,rainc,prc -add rainc_mpas${prfx1}_${prfx2}.nc rainnc_mpas${prfx1}_${prfx2}.nc totalprc_mpas${prfx1}_${prfx2}.nc
 
 fi
 
@@ -169,38 +165,25 @@ fi
 echo "extracting time steps ..."
 # extract all first and last days of the each month
 echo ${liststeps1}
-cdo -seltimestep${liststeps1} total_rainc_mpas${prfx1}_${prfx2}.nc total_rainc_steps1_mpas${prfx1}_${prfx2}.nc
-cdo -seltimestep${liststeps1} total_rainnc_mpas${prfx1}_${prfx2}.nc total_rainnc_steps1_mpas${prfx1}_${prfx2}.nc
 cdo -seltimestep${liststeps1} totalprc_mpas${prfx1}_${prfx2}.nc totalprc_steps1_mpas${prfx1}_${prfx2}.nc 
 echo ${liststeps1}
 echo ""
-cdo -seltimestep${liststeps2} total_rainc_mpas${prfx1}_${prfx2}.nc total_rainc_steps2_mpas${prfx1}_${prfx2}.nc
-cdo -seltimestep${liststeps2} total_rainnc_mpas${prfx1}_${prfx2}.nc total_rainnc_steps2_mpas${prfx1}_${prfx2}.nc
 cdo -seltimestep${liststeps2} totalprc_mpas${prfx1}_${prfx2}.nc totalprc_steps2_mpas${prfx1}_${prfx2}.nc 
 echo ${liststeps2}
 
 
 # deaccumulate
 echo "de-accumulating precipitation..."
-cdo chname,rain,prc -sub total_rainc_steps2_mpas${prfx1}_${prfx2}.nc total_rainc_steps1_mpas${prfx1}_${prfx2}.nc prc_rainc_mpas${prfx1}_${prfx2}.nc
-cdo chname,rain,prc -sub total_rainnc_steps2_mpas${prfx1}_${prfx2}.nc total_rainnc_steps1_mpas${prfx1}_${prfx2}.nc prc_rainnc_mpas${prfx1}_${prfx2}.nc
 cdo -sub totalprc_steps2_mpas${prfx1}_${prfx2}.nc totalprc_steps1_mpas${prfx1}_${prfx2}.nc prc_mpas${prfx1}_${prfx2}.nc
 
 
 echo "setting calendar..."
 # set calendar
-cdo -setcalendar,standard -settaxis,${outcalender}  prc_rainc_mpas${prfx1}_${prfx2}.nc prc_rainc_mpas${prfx1}_${prfx2}_deacc.nc
-cdo -setcalendar,standard -settaxis,${outcalender}  prc_rainnc_mpas${prfx1}_${prfx2}.nc prc_rainnc_mpas${prfx1}_${prfx2}_deacc.nc
 cdo -setcalendar,standard -settaxis,${outcalender}  prc_mpas${prfx1}_${prfx2}.nc prc_mpas${prfx1}_${prfx2}_deacc.nc
 
 
 echo "padding the missing data to position zero..."
-cdo -setvrange,0,2000 -shifttime,-${tstep}hours -seltimestep,1 prc_rainc_mpas${prfx1}_${prfx2}_deacc.nc prc_rainc_mpas${prfx1}_${prfx2}_padded.nc
-cdo -setvrange,0,2000 -shifttime,-${tstep}hours -seltimestep,1 prc_rainnc_mpas${prfx1}_${prfx2}_deacc.nc prc_rainnc_mpas${prfx1}_${prfx2}_padded.nc
-cdo -setvrange,0,2000 -shifttime,-${tstep}hours -seltimestep,1 prc_mpas${prfx1}_${prfx2}_deacc.nc prc_mpas${prfx1}_${prfx2}_padded.nc
-
-cdo mergetime prc_rainc_mpas${prfx1}_${prfx2}_deacc.nc prc_rainc_mpas${prfx1}_${prfx2}_padded.nc prc_rainc_${prfx3}_mpas${prfx1}_${prfx2}.nc
-cdo mergetime prc_rainnc_mpas${prfx1}_${prfx2}_deacc.nc prc_rainnc_mpas${prfx1}_${prfx2}_padded.nc prc_rainnc_${prfx3}_mpas${prfx1}_${prfx2}.nc
+cdo -setrtomiss,-100,2000 -shifttime,-${tstep}hours -seltimestep,1 prc_mpas${prfx1}_${prfx2}_deacc.nc prc_mpas${prfx1}_${prfx2}_padded.nc
 cdo mergetime prc_mpas${prfx1}_${prfx2}_deacc.nc prc_mpas${prfx1}_${prfx2}_padded.nc prc_${prfx3}_mpas${prfx1}_${prfx2}.nc
 
 #echo ""
@@ -210,8 +193,8 @@ rm rain*_mpas${prfx1}_${prfx2}.nc
 rm rain*_mon_mpas${prfx1}_${prfx2}.nc
 rm irain*_mon_mpas${prfx1}_${prfx2}.nc
 rm tprc_${prfx3}_mpas${prfx1}_${prfx2}.nc
-rm prc_*_deacc.nc
-rm prc_*_padded.nc
+rm prc_mpas${prfx1}_${prfx2}_deacc.nc
+rm prc_mpas${prfx1}_${prfx2}_padded.nc
 
 
 echo ""

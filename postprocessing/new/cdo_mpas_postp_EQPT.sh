@@ -12,8 +12,8 @@
 
 prfx1="$1"
 prfx2="$2"
-ta_fname="ta_hrs_mpas6003_${prfx1}_${prfx2}-p027_era5_2022.nc"
-td_fname="td_hrs_mpas6003_${prfx1}_${prfx2}-p027_era5_2022.nc"
+ta_fname="ta_hrs_mpas60_${prfx1}_${prfx2}-p5_era5_2022.nc"
+td_fname="td_hrs_mpas60_${prfx1}_${prfx2}-p5_era5_2022.nc"
 # Define the fixed pressure levels in hPa (order must correspond to the levels in ta_fname/td_fname)
 PRESSURE=(1000 925 850 700 500 250 200)
 
@@ -83,9 +83,9 @@ echo "Merging theta and r fields..."
 cdo merge tmp_theta.nc tmp_r.nc tmp_all_es.nc tmp_all_calc.nc
 
 echo "Calculating equivalent potential temperature (theta_e)..."
-cdo expr,'thetae=theta*exp(2500000*r/(1004*ta))' tmp_all_calc.nc thetae_hrs_mpas6003_${prfx1}_${prfx2}-p027_era5_2022.nc
+cdo expr,'thetae=theta*exp(2500000*r/(1004*ta))' tmp_all_calc.nc thetae_hrs_mpas60_${prfx1}_${prfx2}-p5_era5_2022.nc
 
-echo "Equivalent potential temperature calculation complete. Output written to thetae_hrs_mpas6003_${prfx1}_${prfx2}-p027_era5_2022.nc"
+echo "Equivalent potential temperature calculation complete. Output written to thetae_hrs_mpas60_${prfx1}_${prfx2}-p5_era5_2022.nc"
 
 # Clean up temporary files
 rm -f tmp_TTd.nc tmp_template.nc tmp_const.nc tmp_p_*.nc tmp_p.nc tmp_all*.nc tmp_es.nc tmp_r.nc tmp_theta.nc tmp_all_calc.nc

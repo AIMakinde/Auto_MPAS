@@ -1,0 +1,5 @@
+export LD_LIBRARY_PATH=/mnt/lustre/groups/ERTH0904/Models/MPAS/LIBRARIES/lib:$LD_LIBRARY_PATH
+export NETCDF=/mnt/lustre/groups/ERTH0904/Models/MPAS/LIBRARIES
+export PNETCDF=/mnt/lustre/groups/ERTH0904/Models/MPAS/LIBRARIES
+
+module load chpc/parallel_studio_xe/18.0.2/2018.2.046

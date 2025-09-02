@@ -1,7 +1,7 @@
 #!/bin/bash
 
 filename="latlon.nc"
-prfx1="6003_$1_$2-p027_era5"
+prfx1="60_$1_$2-p5_era5"
 prfx2="2022"
 prfx3="apr"
 clnd="2022-04-07,00:00:00,3hour"
@@ -41,7 +41,6 @@ do
       cdo chname,temperature_surface,tas -selvar,temperature_surface ${filename} "tas_mpas${prfx1}_${prfx2}.nc"
       cdo chname,temperature_surface,ta -selvar,temperature_surface ${filename} "ta_mpas${prfx1}-${letters[$cnt]}.nc"
       cdo chname,dewpoint_surface,td -selvar,dewpoint_surface ${filename} "td_mpas${prfx1}-${letters[$cnt]}.nc"
-      cdo chname,pressure_surface,pas -selvar,pressure_surface ${filename} "pas_mpas${prfx1}-${letters[$cnt]}.nc"
       cdo selvar,t2m ${filename} "t2m_mpas${prfx1}_${prfx2}.nc"
       cdo selvar,sst ${filename} "sst_mpas${prfx1}_${prfx2}.nc"
       cdo selvar,cape ${filename} "cape_mpas${prfx1}_${prfx2}.nc"

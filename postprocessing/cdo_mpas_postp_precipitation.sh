@@ -199,8 +199,8 @@ cdo -setvrange,0,2000 -shifttime,-${tstep}hours -seltimestep,1 prc_rainc_mpas${p
 cdo -setvrange,0,2000 -shifttime,-${tstep}hours -seltimestep,1 prc_rainnc_mpas${prfx1}_${prfx2}_deacc.nc prc_rainnc_mpas${prfx1}_${prfx2}_padded.nc
 cdo -setvrange,0,2000 -shifttime,-${tstep}hours -seltimestep,1 prc_mpas${prfx1}_${prfx2}_deacc.nc prc_mpas${prfx1}_${prfx2}_padded.nc
 
-cdo chname,prc,prcc -mergetime prc_rainc_mpas${prfx1}_${prfx2}_deacc.nc prc_rainc_mpas${prfx1}_${prfx2}_padded.nc prc_rainc_${prfx3}_mpas${prfx1}_${prfx2}.nc
-cdo chname,prc,prcnc -mergetime prc_rainnc_mpas${prfx1}_${prfx2}_deacc.nc prc_rainnc_mpas${prfx1}_${prfx2}_padded.nc prc_rainnc_${prfx3}_mpas${prfx1}_${prfx2}.nc
+cdo chname,prc,prcc -mergetime prc_rainc_mpas${prfx1}_${prfx2}_deacc.nc prc_rainc_mpas${prfx1}_${prfx2}_padded.nc prcc_rainc_${prfx3}_mpas${prfx1}_${prfx2}.nc
+cdo chname,prc,prcnc -mergetime prc_rainnc_mpas${prfx1}_${prfx2}_deacc.nc prc_rainnc_mpas${prfx1}_${prfx2}_padded.nc prcnc_rainnc_${prfx3}_mpas${prfx1}_${prfx2}.nc
 cdo mergetime prc_mpas${prfx1}_${prfx2}_deacc.nc prc_mpas${prfx1}_${prfx2}_padded.nc prc_${prfx3}_mpas${prfx1}_${prfx2}.nc
 
 #echo ""

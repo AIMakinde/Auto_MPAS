@@ -350,6 +350,10 @@ then
 	echo ""
 	echo "running mpas model intergration..."
 
+	atmos_bash_name="bash_atmos.sh"
+	atmos_qsub_name="run_mpas_atmos.qsub"
+	atmos_namelist_name="namelist.atmosphere"
+
 	# create mpas run folder if not exist
         if [ ! -d "${rundir}" ]
         then
@@ -360,14 +364,14 @@ then
         fi
 
 	# copy namelist and other files
-	cp namelist.atmosphere ./${rundir}/mpas_atmos/namelist.atmosphere_org
+	cp ${atmos_namelist_name} ./${rundir}/mpas_atmos/namelist.atmosphere_org
 	cp stream_list.atmosphere.diagnostics ./${rundir}/mpas_atmos/
 	cp stream_list.atmosphere.output ./${rundir}/mpas_atmos/
 	cp stream_list.atmosphere.surface ./${rundir}/mpas_atmos/
 	cp streams.atmosphere ./${rundir}/mpas_atmos/
-	cp run_mpas_atmos.qsub ./${rundir}/mpas_atmos/
+	cp ${atmos_qsub_name} ./${rundir}/mpas_atmos/
 	cp restart_script.sh ./${rundir}/mpas_atmos/
-	cp bash_atmos.sh ./${rundir}/mpas_atmos/
+	cp ${atmos_bash_name} ./${rundir}/mpas_atmos/
 	cp setupMPAS ./${rundir}/mpas_atmos/
 
 	cd ./${rundir}/mpas_atmos/
@@ -381,11 +385,12 @@ then
 	dstr6c="CS=${rundir}"
 	dstr6d="SIMDIR=${bpath}"
 	dstr6e="nproc=${ncores}"
-	sed -i "2s|.*|${dstr6a}|" run_mpas_atmos.qsub
-	sed -i "8s|.*|${dstr6b}|" run_mpas_atmos.qsub
-	sed -i "21s|.*|${dstr6c}|" run_mpas_atmos.qsub
-	sed -i "22s|.*|${dstr6d}|" run_mpas_atmos.qsub
-	sed -i "25s|.*|${dstr6e}|" run_mpas_atmos.qsub
+	sed -i "2s|.*|${dstr6a}|" ${atmos_qsub_name}
+	sed -i "8s|.*|${dstr6b}|" ${atmos_qsub_name}
+	sed -i "21s|.*|${dstr6c}|" ${atmos_qsub_name}
+	sed -i "22s|.*|${dstr6d}|" ${atmos_qsub_name}
+	sed -i "25s|.*|${dstr6e}|" ${atmos_qsub_name}
+	cp ${atmos_bash_name} run_mpas_atmos.qsub
 
 	# modify namelist
 	tmp=$( ls ${bpath}/${meshdir}/${grdprfx}*.grid.nc )  # get fullname of grid file e.g ~/x6.999426.grid.nc
@@ -418,19 +423,19 @@ then
 	dstr15="rsltn='${rsltn}'"
 	dstr16="jobprfx='${jobprfx}'"
 
-	sed -i "44s|.*|${dstr7}|" bash_atmos.sh
-	sed -i "45s|.*|${dstr8}|" bash_atmos.sh
-	sed -i "46s|.*|${dstr9}|" bash_atmos.sh
-	sed -i "47s|.*|${dstr10}|" bash_atmos.sh
-	sed -i "48s|.*|${dstr11}|" bash_atmos.sh
-	sed -i "49s|.*|${dstr12}|" bash_atmos.sh
-	sed -i "50s|.*|${dstr13}|" bash_atmos.sh
-	sed -i "51s|.*|${dstr14}|" bash_atmos.sh
-	sed -i "52s|.*|${dstr15}|" bash_atmos.sh
-	sed -i "55s|.*|${dstr16}|" bash_atmos.sh
+	sed -i "44s|.*|${dstr7}|" ${atmos_bash_name}
+	sed -i "45s|.*|${dstr8}|" ${atmos_bash_name}
+	sed -i "46s|.*|${dstr9}|" ${atmos_bash_name}
+	sed -i "47s|.*|${dstr10}|" ${atmos_bash_name}
+	sed -i "48s|.*|${dstr11}|" ${atmos_bash_name}
+	sed -i "49s|.*|${dstr12}|" ${atmos_bash_name}
+	sed -i "50s|.*|${dstr13}|" ${atmos_bash_name}
+	sed -i "51s|.*|${dstr14}|" ${atmos_bash_name}
+	sed -i "52s|.*|${dstr15}|" ${atmos_bash_name}
+	sed -i "55s|.*|${dstr16}|" ${atmos_bash_name}
 
 	# run bash script
-	./bash_atmos.sh
+	./${atmos_bash_name}
 
 	cd "${bpath}/"
 fi

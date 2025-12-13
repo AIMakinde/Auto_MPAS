@@ -54,8 +54,8 @@ del template['nlat']
 del template['slat']
 del template['wlon']
 del template['elon']
-del template['groupindex']
-del template['compression']
+# del template['groupindex']
+# del template['compression']
 del template['targetdir']
 
 print("")

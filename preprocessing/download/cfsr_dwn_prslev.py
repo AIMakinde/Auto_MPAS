@@ -113,8 +113,8 @@ del template['nlat'] #= 90
 del template['slat'] #= -90
 del template['wlon'] #=-180
 del template['elon'] #= 180
-del template['groupindex']
-del template['compression']
+# del template['groupindex']
+# del template['compression']
 del template['targetdir']
 
 

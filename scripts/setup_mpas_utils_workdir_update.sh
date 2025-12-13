@@ -6,17 +6,16 @@
 # module load chpc/netcdf/4.1.3/gcc-4.8.3  # for grid_rot
 #=====================================================
 
-cs_dir='utils' 
+cs_dir='utils'
 working_dir="$( pwd )"
 source_dir="/apps/chpc/earth/WRF-3.8-pnc-impi_hwl"
 wrf_wps_dir="$source_dir/WPS"
 wrf_run_dir="$source_dir/WRFV3/run"
-geog_data="/mnt/lustre/users/rtakong/case_studies/GEOG"
-gdata="/mnt/lustre/users/rtakong/case_studies/GEOGtopo_gmted2010_30s"
-##grid_rot="/home/rtakong/lustre/shared/grid_rotate"
-grid_rot="/mnt/lustre/users/rtakong/shared/grid_rotate"
-conv_mpas="/mnt/lustre/users/rtakong/shared/convert_mpas"
-ncl_dir="/mnt/lustre/users/rtakong/shared/ncl"
+geog_data="/mnt/lustre/users/amakinde/sims/mpas/mpas_static"
+gdata="/mnt/lustre/users/amakinde/sims/mpas/mpas_static/topo_gmted2010_30s"
+grid_rot="/mnt/lustre/users/amakinde/sims/mpas/grid_rotate"
+conv_mpas="/mnt/lustre/users/amakinde/sims/mpas/convert_mpas"
+ncl_dir="/mnt/lustre/users/amakinde/sims/mpas/ncl"
 #====================================================
 # Do not modify the following section
 #====================================================

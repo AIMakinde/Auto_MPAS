@@ -234,7 +234,7 @@ then
 	echo "running mpas initialization..."
 
 	# create mpas run folder if not exist
-	if [ ! -d "${rundir}" ]
+	if [ ! -d "${rundir}" ] || [ ! -d "${rundir}/mpas_init/" ]
 	then
 		wdir="workdir='${rundir}'"
 		sed -i "3s|.*|${wdir}|" setup_mpas8_workdir.sh
@@ -355,7 +355,7 @@ then
 	atmos_namelist_name="namelist.atmosphere"
 
 	# create mpas run folder if not exist
-        if [ ! -d "${rundir}" ]
+        if [ ! -d "${rundir}" ] || [ ! -d "${rundir}/mpas_atmos/" ]
         then
                 wdir="workdir='${rundir}'"
                 sed -i "3s|.*|${wdir}|" setup_mpas8_workdir.sh

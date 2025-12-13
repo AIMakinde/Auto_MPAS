@@ -137,7 +137,23 @@ print("Response confirmed")
 rqst_id = response['data']['request_id']
 print("request Id:" + str(rqst_id))
 
-check_ready(rqst_id)
+# ----------------------------
+# Poll for Completion
+# ----------------------------
+while True:
+    statuses = rc.get_status(rqst_id)
+
+    rqst_status = statuses['status']
+    data_status = statuses['data']['status']
+    # logger.info(f"Status: {status}")
+
+    if rqst_status.lower() == "ok" and data_status.lower() == "completed":
+    # logger.info("Processing complete. Files ready.")
+        break
+    
+    print(f"--- Data is {data_status}. Waiting for 10 seconds...")
+    sleep(10)
+
 
 # If the program get's here, then the request files are ready
 # Start downloading

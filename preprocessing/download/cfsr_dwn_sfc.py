@@ -1,8 +1,8 @@
 from os import truncate, wait
 from time import sleep
 from requests.exceptions import ChunkedEncodingError
-import rdams_client as rc
-from rdams_helper import *
+from gdex_api_client import gdex_client as rc
+# from rdams_helper import *
 import sys
 
 

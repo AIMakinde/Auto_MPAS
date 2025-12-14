@@ -56,7 +56,7 @@ DEFAULT_VARIABLES = [
     'volumetric_soil_water_layer_1', 'volumetric_soil_water_layer_2', 'volumetric_soil_water_layer_3',
     'volumetric_soil_water_layer_4',
     'land_sea_mask', 'sea_ice_cover',
-    'snow_depth', 'snow_density', 'soil_type'
+    'snow_depth', 'snow_density', 'soil_type', 'geopotential'
 ]
 
 def collect_time_components(start, end, tsteps):
